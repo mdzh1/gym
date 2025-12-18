@@ -3,12 +3,18 @@
 // ============================================
 
 // التحقق من وجود ملف config
-// استخدام window.DISCORD_WEBHOOK_URL إذا كان متاحاً، وإلا استخدام المتغير العام
-const DISCORD_WEBHOOK_URL = (typeof window !== 'undefined' && window.DISCORD_WEBHOOK_URL) 
-    ? window.DISCORD_WEBHOOK_URL 
-    : (typeof DISCORD_WEBHOOK_URL !== 'undefined' ? DISCORD_WEBHOOK_URL : 'YOUR_WEBHOOK_URL_HERE');
+// استخدام window.DISCORD_WEBHOOK_URL - يتم تهيئته في config.js
+function getDiscordWebhookUrl() {
+    if (typeof window !== 'undefined' && window.DISCORD_WEBHOOK_URL) {
+        return window.DISCORD_WEBHOOK_URL;
+    }
+    // القيمة الافتراضية
+    return 'YOUR_WEBHOOK_URL_HERE';
+}
 
-if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
+// التحقق من وجود الرابط
+const webhookUrl = getDiscordWebhookUrl();
+if (!webhookUrl || webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
     console.error('❌ خطأ: لم يتم العثور على رابط Discord Webhook. يرجى إعداد ملف .env');
     console.warn('📝 ملاحظة: ملف .env محمي ولا يتم رفعه على GitHub');
     console.warn('📋 أنشئ ملف .env في المجلد الرئيسي وأضف: DISCORD_WEBHOOK_URL=رابط_الويب_هوك');
@@ -113,7 +119,8 @@ async function sendToDiscord(formData) {
         };
 
         // إرسال الطلب إلى Discord Webhook
-        const response = await fetch(DISCORD_WEBHOOK_URL, {
+        const webhookUrl = getDiscordWebhookUrl();
+        const response = await fetch(webhookUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -250,7 +257,8 @@ form.addEventListener('submit', async (e) => {
 
     try {
         // التحقق من وجود Webhook URL
-        if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
+        const webhookUrl = getDiscordWebhookUrl();
+        if (!webhookUrl || webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
             throw new Error('يرجى إعداد رابط Discord Webhook في ملف .env (أنشئ ملف .env وأضف DISCORD_WEBHOOK_URL=رابط_الويب_هوك)');
         }
 

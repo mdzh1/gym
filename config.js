@@ -34,12 +34,7 @@ function initDiscordWebhook() {
         console.warn('يرجى إنشاء ملف .env وإضافة DISCORD_WEBHOOK_URL');
     }
     
-    // تعيين المتغير العام
-    if (typeof DISCORD_WEBHOOK_URL === 'undefined') {
-        var DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
-    } else {
-        DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
-    }
+    // لا حاجة لتعريف متغير عام - سيتم استخدام window.DISCORD_WEBHOOK_URL مباشرة
 }
 
 // انتظار تحميل .env أو التهيئة مباشرة إذا كان محملاً بالفعل
@@ -60,11 +55,14 @@ if (typeof window !== 'undefined') {
                 window.envLoaded = true;
                 initDiscordWebhook();
             }
-        }, 1000);
+        }, 500);
+        
+        // تهيئة فورية كقيمة افتراضية (في حالة عدم وجود .env)
+        initDiscordWebhook();
     }
 } else {
     // في حالة عدم وجود window (Node.js مثلاً)
-    var DISCORD_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
+    // لا حاجة لتعريف متغير - سيتم استخدام window.DISCORD_WEBHOOK_URL
 }
 
 // مثال على الرابط:
