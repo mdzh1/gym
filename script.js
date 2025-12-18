@@ -2,28 +2,89 @@
 // استمارة تسجيل الجيم - ملف JavaScript
 // ============================================
 
-// التحقق من وجود ملف config
-// استخدام window.DISCORD_WEBHOOK_URL - يتم تهيئته في config.js
+// ============================================
+// دالة للحصول على رابط Discord Webhook
+// ============================================
 function getDiscordWebhookUrl() {
-    if (typeof window !== 'undefined' && window.DISCORD_WEBHOOK_URL) {
-        return window.DISCORD_WEBHOOK_URL;
+    // انتظار تحميل .env إذا لم يكن جاهزاً
+    if (!window.envReady) {
+        return null; // سيتم إعادة المحاولة لاحقاً
     }
-    // القيمة الافتراضية
-    return 'YOUR_WEBHOOK_URL_HERE';
-}
-
-// التحقق من وجود الرابط
-const webhookUrl = getDiscordWebhookUrl();
-if (!webhookUrl || webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
-    console.error('❌ خطأ: لم يتم العثور على رابط Discord Webhook. يرجى إعداد ملف .env');
-    console.warn('📝 ملاحظة: ملف .env محمي ولا يتم رفعه على GitHub');
-    console.warn('📋 أنشئ ملف .env في المجلد الرئيسي وأضف: DISCORD_WEBHOOK_URL=رابط_الويب_هوك');
+    
+    // الحصول على الرابط من window (تم تحميله من .env)
+    const url = window.DISCORD_WEBHOOK_URL;
+    
+    if (!url || url === 'YOUR_WEBHOOK_URL_HERE' || url === '') {
+        return null;
+    }
+    
+    return url;
 }
 
 // الحصول على عناصر DOM
 const form = document.getElementById('gymForm');
 const submitBtn = document.getElementById('submitBtn');
 const alertContainer = document.getElementById('alertContainer');
+const subscriptionSelect = document.getElementById('subscription');
+const priceDisplay = document.getElementById('priceDisplay');
+const totalPriceElement = document.getElementById('totalPrice');
+
+// أسعار الاشتراكات
+const subscriptionPrices = {
+    'يومي': 50,
+    'أسبوعي': 150,
+    'شهري': 500,
+    'ربع سنوي': 1350,
+    'نصف سنوي': 2400,
+    'سنوي': 4200
+};
+
+// سعر المدرب الشخصي شهرياً
+const personalTrainerMonthlyPrice = 200;
+
+// حساب عدد الأشهر حسب نوع الاشتراك
+function getMonthsForSubscription(subscription) {
+    const monthsMap = {
+        'يومي': 0.033,      // تقريباً يوم واحد = 0.033 شهر
+        'أسبوعي': 0.25,     // أسبوع واحد = 0.25 شهر
+        'شهري': 1,
+        'ربع سنوي': 3,
+        'نصف سنوي': 6,
+        'سنوي': 12
+    };
+    return monthsMap[subscription] || 0;
+}
+
+// حساب السعر الإجمالي
+function calculateTotalPrice() {
+    const selectedOption = subscriptionSelect.options[subscriptionSelect.selectedIndex];
+    const subscription = subscriptionSelect.value;
+    const hasPersonalTrainer = document.querySelector('input[name="personalTrainer"]:checked')?.value === 'نعم';
+    
+    if (!subscription) {
+        priceDisplay.style.display = 'none';
+        return 0;
+    }
+    
+    const subscriptionPrice = subscriptionPrices[subscription] || 0;
+    const months = getMonthsForSubscription(subscription);
+    const trainerPrice = hasPersonalTrainer ? (personalTrainerMonthlyPrice * months) : 0;
+    const total = subscriptionPrice + trainerPrice;
+    
+    // عرض السعر
+    priceDisplay.style.display = 'block';
+    totalPriceElement.textContent = total.toLocaleString('ar-SA');
+    
+    return total;
+}
+
+// تحديث السعر عند تغيير نوع الاشتراك
+subscriptionSelect.addEventListener('change', calculateTotalPrice);
+
+// تحديث السعر عند تغيير اختيار المدرب الشخصي
+document.querySelectorAll('input[name="personalTrainer"]').forEach(radio => {
+    radio.addEventListener('change', calculateTotalPrice);
+});
 
 // التحقق من صحة رقم الجوال (سعودي)
 function validatePhone(phone) {
@@ -104,6 +165,11 @@ async function sendToDiscord(formData) {
                     name: "💪 مدرب شخصي",
                     value: formData.personalTrainer,
                     inline: true
+                },
+                {
+                    name: "💰 السعر الإجمالي",
+                    value: `${formData.totalPrice.toLocaleString('ar-SA')} ريال`,
+                    inline: false
                 }
             ],
             footer: {
@@ -120,12 +186,20 @@ async function sendToDiscord(formData) {
 
         // إرسال الطلب إلى Discord Webhook
         const webhookUrl = getDiscordWebhookUrl();
+        if (!webhookUrl) {
+            throw new Error('رابط Discord Webhook غير متاح');
+        }
+        
+        // معرف المستخدم المراد تاغه
+        const userId = '425212044963348480';
+        
         const response = await fetch(webhookUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                content: `<@${userId}>`, // تاغ المستخدم
                 embeds: [embed],
                 username: 'Gym Registration Bot',
                 avatar_url: 'https://cdn-icons-png.flaticon.com/512/2344/2344107.png'
@@ -243,23 +317,37 @@ form.addEventListener('submit', async (e) => {
     }
 
     // جمع البيانات
+    const subscription = document.getElementById('subscription').value;
+    const hasPersonalTrainer = document.querySelector('input[name="personalTrainer"]:checked').value === 'نعم';
+    const totalPrice = calculateTotalPrice();
+    
     const formData = {
         fullName: document.getElementById('fullName').value.trim(),
         phone: formatPhone(document.getElementById('phone').value.trim()),
         age: parseInt(document.getElementById('age').value),
-        subscription: document.getElementById('subscription').value,
+        subscription: subscription,
         goal: document.getElementById('goal').value,
-        personalTrainer: document.querySelector('input[name="personalTrainer"]:checked').value
+        personalTrainer: document.querySelector('input[name="personalTrainer"]:checked').value,
+        totalPrice: totalPrice
     };
 
     // تفعيل حالة التحميل
     setLoading(true);
 
     try {
+        // انتظار تحميل .env إذا لزم الأمر
+        let attempts = 0;
+        let webhookUrl = getDiscordWebhookUrl();
+        
+        while (!webhookUrl && attempts < 10) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            webhookUrl = getDiscordWebhookUrl();
+            attempts++;
+        }
+        
         // التحقق من وجود Webhook URL
-        const webhookUrl = getDiscordWebhookUrl();
-        if (!webhookUrl || webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
-            throw new Error('يرجى إعداد رابط Discord Webhook في ملف .env (أنشئ ملف .env وأضف DISCORD_WEBHOOK_URL=رابط_الويب_هوك)');
+        if (!webhookUrl) {
+            throw new Error('يرجى إعداد رابط Discord Webhook في ملف .env\nأنشئ ملف .env في المجلد الرئيسي وأضف:\nDISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...');
         }
 
         // إرسال البيانات إلى Discord

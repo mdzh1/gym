@@ -1,58 +1,67 @@
 // ============================================
-// تحميل متغيرات البيئة من ملف .env
+// تحميل متغيرات البيئة
 // ============================================
 
-// قراءة ملف .env وتحويله إلى متغيرات JavaScript
-async function loadEnv() {
-    try {
-        const response = await fetch('.env');
-        if (!response.ok) {
-            console.warn('ملف .env غير موجود، سيتم استخدام القيمة الافتراضية من config.js');
-            window.envLoaded = true;
-            return;
-        }
-        
-        const text = await response.text();
-        const lines = text.split('\n');
-        
-        lines.forEach(line => {
-            // تجاهل التعليقات والأسطر الفارغة
-            const trimmedLine = line.trim();
-            if (trimmedLine === '' || trimmedLine.startsWith('#')) {
-                return;
-            }
-            
-            // تقسيم السطر إلى key و value
-            const match = trimmedLine.match(/^([^=]+)=(.*)$/);
-            if (match) {
-                const key = match[1].trim();
-                let value = match[2].trim();
-                
-                // إزالة علامات الاقتباس إذا كانت موجودة
-                if ((value.startsWith('"') && value.endsWith('"')) || 
-                    (value.startsWith("'") && value.endsWith("'"))) {
-                    value = value.slice(1, -1);
+(function() {
+    // محاولة الحصول على المتغيرات من Vercel Serverless Function أولاً
+    async function loadFromVercel() {
+        try {
+            const response = await fetch('/api/env');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.DISCORD_WEBHOOK_URL && data.DISCORD_WEBHOOK_URL !== 'YOUR_WEBHOOK_URL_HERE') {
+                    window.DISCORD_WEBHOOK_URL = data.DISCORD_WEBHOOK_URL;
+                    console.log('✅ تم تحميل رابط Discord Webhook من Vercel Environment Variables');
+                    window.envReady = true;
+                    return true;
                 }
-                
-                // تعيين المتغير في window (global scope)
-                window[key] = value;
             }
-        });
-        
-        console.log('✅ تم تحميل متغيرات البيئة من ملف .env بنجاح');
-        window.envLoaded = true;
-        
-        // إطلاق حدث لتنبيه config.js
-        window.dispatchEvent(new Event('envLoaded'));
-    } catch (error) {
-        console.warn('⚠️ خطأ في تحميل ملف .env:', error);
-        console.warn('سيتم استخدام القيمة الافتراضية من config.js');
-        window.envLoaded = true;
-        window.dispatchEvent(new Event('envLoaded'));
+        } catch (error) {
+            // Serverless Function غير متاح (تطوير محلي)
+            console.log('ℹ️ Vercel API غير متاح - سيتم استخدام ملف env-config.js');
+        }
+        return false;
     }
-}
-
-// بدء تحميل المتغيرات فوراً
-window.envLoaded = false;
-loadEnv();
-
+    
+    // محاولة تحميل من ملف env-config.js (يتم إنشاؤه من .env)
+    function loadFromConfigFile() {
+        try {
+            // هذا الملف يتم إنشاؤه تلقائياً من .env
+            if (typeof window.ENV_CONFIG !== 'undefined' && window.ENV_CONFIG.DISCORD_WEBHOOK_URL) {
+                window.DISCORD_WEBHOOK_URL = window.ENV_CONFIG.DISCORD_WEBHOOK_URL;
+                console.log('✅ تم تحميل رابط Discord Webhook من env-config.js');
+                window.envReady = true;
+                return true;
+            }
+        } catch (error) {
+            console.log('ℹ️ ملف env-config.js غير موجود');
+        }
+        return false;
+    }
+    
+    // تهيئة القيمة الافتراضية
+    function setDefault() {
+        window.DISCORD_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
+        window.envReady = true;
+        console.warn('⚠️ لم يتم العثور على رابط Discord Webhook');
+        console.warn('📝 للتطوير المحلي: أنشئ ملف .env ثم شغّل: node create-env-config.js');
+        console.warn('📝 للنشر على Vercel: أضف Environment Variable: DISCORD_WEBHOOK_URL');
+    }
+    
+    // محاولة التحميل بالترتيب
+    async function init() {
+        // 1. محاولة من Vercel API
+        const fromVercel = await loadFromVercel();
+        if (fromVercel) return;
+        
+        // 2. محاولة من env-config.js
+        const fromConfig = loadFromConfigFile();
+        if (fromConfig) return;
+        
+        // 3. استخدام القيمة الافتراضية
+        setDefault();
+    }
+    
+    // بدء التهيئة
+    init();
+})();

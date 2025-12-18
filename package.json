@@ -1,0 +1,12 @@
+{
+  "name": "gym-registration-form",
+  "version": "1.0.0",
+  "description": "Gym registration form with Discord webhook integration",
+  "scripts": {
+    "setup": "node create-env-config.js",
+    "dev": "node create-env-config.js && echo Setup complete! Open index.html in your browser"
+  },
+  "keywords": ["gym", "registration", "discord", "webhook"],
+  "author": "",
+  "license": "MIT"
+}

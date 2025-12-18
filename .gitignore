@@ -1,8 +1,8 @@
 # ملفات الإعدادات الحساسة
-config.local.js
 .env
 .env.local
 .env.*.local
+env-config.js
 
 # ملفات النظام
 .DS_Store
@@ -21,13 +21,7 @@ desktop.ini
 *.tmp
 *.temp
 
-# ملفات Node.js (إذا تم إضافة Node.js لاحقاً)
+# ملفات Node.js
 node_modules/
 package-lock.json
 yarn.lock
-
-# ملفات البيئة
-.env
-.env.local
-.env.*.local
-
