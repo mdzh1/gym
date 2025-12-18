@@ -21,10 +21,49 @@
 // إذا لم يكن ملف .env موجوداً، سيتم استخدام القيمة الافتراضية
 // ملف load-env.js يتم تحميله أولاً في index.html لقراءة .env
 
-// التحقق من وجود المتغير من .env أو استخدام القيمة الافتراضية
-if (typeof window !== 'undefined' && window.DISCORD_WEBHOOK_URL) {
-    var DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
-} else if (typeof DISCORD_WEBHOOK_URL === 'undefined' || !DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === '') {
+// دالة لتهيئة DISCORD_WEBHOOK_URL بعد تحميل .env
+function initDiscordWebhook() {
+    // التحقق من وجود المتغير من .env
+    if (typeof window !== 'undefined' && window.DISCORD_WEBHOOK_URL && window.DISCORD_WEBHOOK_URL !== '') {
+        window.DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
+        console.log('✅ تم استخدام رابط Discord Webhook من ملف .env');
+    } else {
+        // استخدام القيمة الافتراضية
+        window.DISCORD_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
+        console.warn('⚠️ لم يتم العثور على رابط Discord Webhook في ملف .env');
+        console.warn('يرجى إنشاء ملف .env وإضافة DISCORD_WEBHOOK_URL');
+    }
+    
+    // تعيين المتغير العام
+    if (typeof DISCORD_WEBHOOK_URL === 'undefined') {
+        var DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
+    } else {
+        DISCORD_WEBHOOK_URL = window.DISCORD_WEBHOOK_URL;
+    }
+}
+
+// انتظار تحميل .env أو التهيئة مباشرة إذا كان محملاً بالفعل
+if (typeof window !== 'undefined') {
+    if (window.envLoaded) {
+        // .env تم تحميله بالفعل
+        initDiscordWebhook();
+    } else {
+        // انتظار تحميل .env
+        window.addEventListener('envLoaded', function() {
+            initDiscordWebhook();
+        });
+        
+        // في حالة فشل التحميل أو التأخير، انتظر قليلاً ثم تهيئة
+        setTimeout(function() {
+            if (!window.envLoaded) {
+                console.warn('⏱️ انتهى وقت انتظار تحميل .env، سيتم استخدام القيمة الافتراضية');
+                window.envLoaded = true;
+                initDiscordWebhook();
+            }
+        }, 1000);
+    }
+} else {
+    // في حالة عدم وجود window (Node.js مثلاً)
     var DISCORD_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
 }
 

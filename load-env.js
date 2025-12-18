@@ -8,6 +8,7 @@ async function loadEnv() {
         const response = await fetch('.env');
         if (!response.ok) {
             console.warn('ملف .env غير موجود، سيتم استخدام القيمة الافتراضية من config.js');
+            window.envLoaded = true;
             return;
         }
         
@@ -35,22 +36,23 @@ async function loadEnv() {
                 
                 // تعيين المتغير في window (global scope)
                 window[key] = value;
-                
-                // أيضاً تعيينه كمتغير عام
-                if (typeof window[key] !== 'undefined') {
-                    // إنشاء متغير عام
-                    eval(`var ${key} = "${value.replace(/"/g, '\\"')}";`);
-                }
             }
         });
         
-        console.log('تم تحميل متغيرات البيئة من ملف .env بنجاح');
+        console.log('✅ تم تحميل متغيرات البيئة من ملف .env بنجاح');
+        window.envLoaded = true;
+        
+        // إطلاق حدث لتنبيه config.js
+        window.dispatchEvent(new Event('envLoaded'));
     } catch (error) {
-        console.warn('خطأ في تحميل ملف .env:', error);
+        console.warn('⚠️ خطأ في تحميل ملف .env:', error);
         console.warn('سيتم استخدام القيمة الافتراضية من config.js');
+        window.envLoaded = true;
+        window.dispatchEvent(new Event('envLoaded'));
     }
 }
 
-// تحميل المتغيرات فوراً (قبل تحميل config.js)
+// بدء تحميل المتغيرات فوراً
+window.envLoaded = false;
 loadEnv();
 
