@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استمارة تسجيل الجيم</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <!-- شعار النادي -->
+                    <div class="logo-container mb-3">
+                        <img src="emge/نادي.png" alt="شعار نادي أبو زهرة" class="gym-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="gym-logo-placeholder" style="display: none;">
+                            <i class="bi bi-hand-index-thumb-fill gym-icon"></i>
+                        </div>
+                    </div>
+                    <!-- اسم النادي -->
+                    <h2 class="gym-name mb-2">نادي أبو زهرة</h2>
+                    <h1 class="display-4 fw-bold mt-3">استمارة تسجيل الجيم</h1>
+                    <p class="lead text-muted">ابدأ رحلتك نحو اللياقة البدنية</p>
+                </div>
+
+                <!-- Form Card -->
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-4 p-md-5">
+                        <form id="gymForm" novalidate>
+                            <!-- الاسم الكامل -->
+                            <div class="mb-4">
+                                <label for="fullName" class="form-label fw-bold">
+                                    <i class="bi bi-person-fill me-2"></i>الاسم الكامل <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="fullName" 
+                                       placeholder="أدخل اسمك الكامل" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال الاسم الكامل
+                                </div>
+                            </div>
+
+                            <!-- رقم الجوال -->
+                            <div class="mb-4">
+                                <label for="phone" class="form-label fw-bold">
+                                    <i class="bi bi-phone-fill me-2"></i>رقم الجوال <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" class="form-control form-control-lg" id="phone" 
+                                       placeholder="05xxxxxxxx" pattern="[0-9]{10}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال رقم جوال صحيح (10 أرقام)
+                                </div>
+                                <small class="form-text text-muted">مثال: 0512345678</small>
+                            </div>
+
+                            <!-- العمر -->
+                            <div class="mb-4">
+                                <label for="age" class="form-label fw-bold">
+                                    <i class="bi bi-calendar3 me-2"></i>العمر <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="age" 
+                                       placeholder="أدخل عمرك" min="16" max="100" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال عمر صحيح (من 16 إلى 100)
+                                </div>
+                            </div>
+
+                            <!-- نوع الاشتراك -->
+                            <div class="mb-4">
+                                <label for="subscription" class="form-label fw-bold">
+                                    <i class="bi bi-calendar-check me-2"></i>نوع الاشتراك <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select form-select-lg" id="subscription" required>
+                                    <option value="">اختر نوع الاشتراك</option>
+                                    <option value="يومي">يومي</option>
+                                    <option value="أسبوعي">أسبوعي</option>
+                                    <option value="شهري">شهري</option>
+                                    <option value="ربع سنوي">ربع سنوي</option>
+                                    <option value="نصف سنوي">نصف سنوي</option>
+                                    <option value="سنوي">سنوي</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار نوع الاشتراك
+                                </div>
+                            </div>
+
+                            <!-- هدف التمرين -->
+                            <div class="mb-4">
+                                <label for="goal" class="form-label fw-bold">
+                                    <i class="bi bi-bullseye me-2"></i>هدف التمرين <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select form-select-lg" id="goal" required>
+                                    <option value="">اختر هدفك من التمرين</option>
+                                    <option value="بناء العضلات">بناء العضلات</option>
+                                    <option value="تنشيف">تنشيف</option>
+                                    <option value="فقدان الوزن">فقدان الوزن</option>
+                                    <option value="زيادة الوزن">زيادة الوزن</option>
+                                    <option value="تحسين اللياقة">تحسين اللياقة</option>
+                                    <option value="الاستشفاء من إصابة">الاستشفاء من إصابة</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار هدف التمرين
+                                </div>
+                            </div>
+
+                            <!-- مدرب شخصي -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-person-badge me-2"></i>مدرب شخصي <span class="text-danger">*</span>
+                                </label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="personalTrainer" id="trainerYes" value="نعم" required>
+                                    <label class="btn btn-outline-primary btn-lg" for="trainerYes">
+                                        <i class="bi bi-check-circle me-2"></i>نعم
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="personalTrainer" id="trainerNo" value="لا" required>
+                                    <label class="btn btn-outline-primary btn-lg" for="trainerNo">
+                                        <i class="bi bi-x-circle me-2"></i>لا
+                                    </label>
+                                </div>
+                                <div class="invalid-feedback d-block">
+                                    يرجى اختيار إجابة
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="bi bi-send-fill me-2"></i>
+                                    <span class="btn-text">إرسال التسجيل</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Success/Error Messages -->
+                        <div id="alertContainer" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        <i class="bi bi-shield-check me-2"></i>
+                        جميع بياناتك محمية وآمنة
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <!-- تحميل متغيرات البيئة من ملف .env (محمي - لا يتم رفعه على GitHub) -->
+    <script src="load-env.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

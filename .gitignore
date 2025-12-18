@@ -1,0 +1,33 @@
+# ملفات الإعدادات الحساسة
+config.local.js
+.env
+.env.local
+.env.*.local
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# محررات النصوص
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ملفات مؤقتة
+*.log
+*.tmp
+*.temp
+
+# ملفات Node.js (إذا تم إضافة Node.js لاحقاً)
+node_modules/
+package-lock.json
+yarn.lock
+
+# ملفات البيئة
+.env
+.env.local
+.env.*.local
+
